@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next'
-import Head from 'next/head'
-import { Toaster } from 'react-hot-toast';
-
+import React from 'react'
+import { Toaster } from 'react-hot-toast'
 import './globals.css'
 import './vault.css'
 
@@ -31,16 +30,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <Head>
-        <meta name="theme-color" content="#15181e" />
+      <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-        <style>{`body { font-family: 'Inter', sans-serif; }`}</style>
-      </Head>
+      </head>
       <body className="font-sans antialiased">
-        <React.StrictMode>{children}</React.StrictMode>
-        <Toaster theme="dark" position="bottom-right" richColors closeButton />
+        {children}
+        <Toaster position="bottom-right" />
       </body>
     </html>
   )

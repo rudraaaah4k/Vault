@@ -187,7 +187,7 @@ export async function antiEntropyTick(cluster: Cluster) {
   }
 }
 
-async function fetchGoodChunk(cluster: Cluster, node: StorageNode, ref: ChunkRef, objectId: string, bucket: string, partition: number) {
+async function fetchGoodChunk(cluster: Cluster, node: StorageNode, ref: ChunkRef, _objectId: string, bucket: string, partition: number) {
   const n = cluster.bucketN(bucket)
   const cfg = cluster.config
   const candidates = [
