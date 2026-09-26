@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, type FormEvent } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import useSWR from 'swr'
 import {
@@ -26,7 +27,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react'
-
+import GhostFibers from '../GhostFibers'
 type Policy = {
   name: string
   n: number
@@ -302,11 +303,39 @@ export function DurableDashboard() {
   if (!snap || error?.status === 401)
     return (
       <main className="vd-app vd-login">
-        <div className="vd-login-art">
-          <div className="vd-wordmark">
+        <div className="vd-login-art" style={{ position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+            <GhostFibers
+              lineColor="#16251c"
+              glowColor="#30472b"
+              speed={0.2}
+              scale={2}
+              rotation={0}
+              rotationSpeed={0.25}
+              layers={4}
+              waveAmplitude={0.015}
+              waveFrequency={3}
+              waveSpeed={0.15}
+              layerSpeed={0.08}
+              twist={0.1}
+              twistFrequency={5}
+              twistSpeed={1.2}
+              lineFrequency={5}
+              lineSpacing={2}
+              lineSharpness={16}
+              glowFalloff={10}
+              glowIntensity={1.6}
+              brightness={2}
+              blueBoost={1.1}
+              vignette={0.8}
+              grain={0.05}
+              dpr={1}
+            />
+          </div>
+          <div className="vd-wordmark" style={{ position: 'relative', zIndex: 10 }}>
             <Layers3 size={24} /> vault<span className="vd-tag">OBJECT STORAGE</span>
           </div>
-          <div>
+          <div style={{ position: 'relative', zIndex: 10 }}>
             <span className="vd-eyebrow">BUILT TO RECOVER</span>
             <h1>
               Your data.
@@ -320,7 +349,7 @@ export function DurableDashboard() {
               <br />A clear view of every recovery.
             </p>
           </div>
-          <span className="vd-fine">DURABLE STORAGE · INTEGRITY VERIFICATION · AUTOMATIC REPAIR</span>
+          <span className="vd-fine" style={{ position: 'relative', zIndex: 10 }}>DURABLE STORAGE · INTEGRITY VERIFICATION · AUTOMATIC REPAIR</span>
         </div>
         <form onSubmit={login} className="vd-login-form">
           <span className="vd-icon-box">
@@ -547,7 +576,15 @@ export function DurableDashboard() {
               </article>
             ))}
           </section>
-          {tab === 'objects' && (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={tab}
+              initial={{ opacity: 0, y: 12, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {tab === 'objects' && (
             <section className="vd-panel">
               <div className="vd-panel-toolbar">
                 <div className="vd-bucket-select">
@@ -982,6 +1019,8 @@ export function DurableDashboard() {
               </section>
             </div>
           )}
+            </motion.div>
+          </AnimatePresence>
           <div className="vd-bottom-note">
             <LockKeyhole size={14} />
             <span>
@@ -994,9 +1033,23 @@ export function DurableDashboard() {
           </div>
         </main>
       </div>
-      {upload && (
-        <div className="vd-modal-backdrop">
-          <form className="vd-modal" onSubmit={sendFile}>
+      <AnimatePresence>
+        {upload && (
+          <motion.div 
+            className="vd-modal-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <motion.form 
+              className="vd-modal" 
+              onSubmit={sendFile}
+              initial={{ scale: 0.95, opacity: 0, y: 15 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            >
             <div className="vd-section-title">
               <h2>Upload an object</h2>
               <button
@@ -1057,12 +1110,26 @@ export function DurableDashboard() {
               )}{' '}
               Upload & replicate
             </button>
-          </form>
-        </div>
-      )}
-      {detail && (
-        <div className="vd-modal-backdrop">
-          <section className="vd-modal">
+            </motion.form>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {detail && (
+          <motion.div 
+            className="vd-modal-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <motion.section 
+              className="vd-modal"
+              initial={{ scale: 0.95, opacity: 0, y: 15 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            >
             <div className="vd-section-title">
               <h2>Object details</h2>
               <button onClick={() => setDetail(null)} aria-label="Close details">
@@ -1093,9 +1160,10 @@ export function DurableDashboard() {
             <a className="vd-button vd-primary" href={objectUrl(detail.bucket, detail.key)}>
               <ArrowDownToLine size={16} /> Download verified object
             </a>
-          </section>
-        </div>
-      )}
+            </motion.section>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
