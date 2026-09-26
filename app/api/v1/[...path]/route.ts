@@ -15,7 +15,7 @@ async function forward(req: NextRequest, { params }: { params: Promise<{ path: s
   }
   const { path } = await params
   const url = `${process.env.VAULT_GATEWAY_URL || 'http://127.0.0.1:7400'}/v1/${path.map(encodeURIComponent).join('/')}${req.nextUrl.search}`
-  const headers = new Headers({ authorization: `Bearer ${token}` })
+  const headers = new Headers({ authorization: `Bearer ${token}`, 'Bypass-Tunnel-Reminder': 'true' })
   for (const name of [
     'content-type',
     'content-length',
