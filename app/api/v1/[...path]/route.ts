@@ -86,8 +86,7 @@ async function forward(req: NextRequest, { params }: { params: Promise<{ path: s
   const { path } = await params
 
   // Demo mode: return mock data instead of proxying to gateway
-  // Always active based on user request.
-  if (true || isDemoMode()) {
+  if (isDemoMode()) {
     return await demoResponse(req, path)
   }
 
