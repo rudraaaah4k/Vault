@@ -1,11 +1,70 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { isDemoMode, demoClusterSnapshot, demoObjectListing } from '@/lib/vault/demo-data'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+function demoResponse(req: NextRequest, path: string[]) {
+  const joined = path.join('/')
+
+  // GET /v1/cluster
+  if (joined === 'cluster' && req.method === 'GET') {
+    return NextResponse.json(demoClusterSnapshot(), { headers: { 'Cache-Control': 'no-store' } })
+  }
+
+  // GET /v1/objects/:bucket  (object listing)
+  if (path[0] === 'objects' && path.length === 2 && req.method === 'GET') {
+    return NextResponse.json(demoObjectListing(path[1]), { headers: { 'Cache-Control': 'no-store' } })
+  }
+
+  // POST /v1/repair
+  if (joined === 'repair' && req.method === 'POST') {
+    return NextResponse.json({ ok: true, message: 'Demo: integrity scan completed.' })
+  }
+
+  // POST /v1/buckets (create bucket)
+  if (joined === 'buckets' && req.method === 'POST') {
+    return NextResponse.json({ ok: true, message: 'Demo: bucket created.' })
+  }
+
+  // POST /v1/nodes (add node)
+  if (joined === 'nodes' && req.method === 'POST') {
+    return NextResponse.json({ ok: true, message: 'Demo: node registered.' })
+  }
+
+  // POST /v1/nodes/:id/drain
+  if (path[0] === 'nodes' && path.length === 3 && path[2] === 'drain' && req.method === 'POST') {
+    return NextResponse.json({ ok: true, message: 'Demo: node drain started.' })
+  }
+
+  // PUT /v1/objects/:bucket/:key (upload — in demo we just accept it)
+  if (path[0] === 'objects' && path.length >= 3 && req.method === 'PUT') {
+    return NextResponse.json({ ok: true, version: 'demo-v1' }, { status: 200 })
+  }
+
+  // DELETE /v1/objects/:bucket/:key
+  if (path[0] === 'objects' && path.length >= 3 && req.method === 'DELETE') {
+    return NextResponse.json({ ok: true, message: 'Demo: object deleted.' })
+  }
+
+  // Fallback for any unhandled demo route
+  return NextResponse.json(
+    { error: 'This action is not available in demo mode.' },
+    { status: 501 },
+  )
+}
+
 async function forward(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   const token = req.cookies.get('vault_session')?.value
   if (!token) return NextResponse.json({ error: 'Sign in to your cluster.' }, { status: 401 })
+
+  const { path } = await params
+
+  // Demo mode: return mock data instead of proxying to gateway
+  if (isDemoMode()) {
+    return demoResponse(req, path)
+  }
+
   if (
     !['GET', 'HEAD'].includes(req.method) &&
     req.headers.get('origin') &&
@@ -13,7 +72,6 @@ async function forward(req: NextRequest, { params }: { params: Promise<{ path: s
   ) {
     return NextResponse.json({ error: 'Cross-origin request rejected' }, { status: 403 })
   }
-  const { path } = await params
   const url = `${process.env.VAULT_GATEWAY_URL || 'http://127.0.0.1:7400'}/v1/${path.map(encodeURIComponent).join('/')}${req.nextUrl.search}`
   const headers = new Headers({ authorization: `Bearer ${token}`, 'Bypass-Tunnel-Reminder': 'true' })
   for (const name of [

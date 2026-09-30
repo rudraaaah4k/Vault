@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { isDemoMode } from '@/lib/vault/demo-data'
 
 export const runtime = 'nodejs'
 const gateway = () => process.env.VAULT_GATEWAY_URL || 'http://127.0.0.1:7400'
@@ -22,6 +23,21 @@ export async function POST(req: NextRequest) {
   const { token } = await req.json().catch(() => ({}))
   if (typeof token !== 'string' || token.length < 16 || token.length > 1024)
     return NextResponse.json({ error: 'Enter a valid access token.' }, { status: 400 })
+
+  // Demo mode: skip gateway validation, accept any valid-length token
+  if (isDemoMode()) {
+    attempts.delete(source)
+    const response = NextResponse.json({ ok: true })
+    response.cookies.set('vault_session', token, {
+      httpOnly: true,
+      sameSite: 'strict',
+      secure: process.env.VAULT_COOKIE_SECURE === 'true',
+      path: '/',
+      maxAge: 10 * 24 * 60 * 60,
+    })
+    return response
+  }
+
   try {
     const result = await fetch(`${gateway()}/v1/cluster`, {
       headers: { authorization: `Bearer ${token}`, 'Bypass-Tunnel-Reminder': 'true', 'X-Pinggy-No-Screen': 'true' },
