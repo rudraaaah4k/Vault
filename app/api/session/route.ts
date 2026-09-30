@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       sameSite: 'strict',
       secure: process.env.VAULT_COOKIE_SECURE === 'true',
       path: '/',
-      maxAge: 8 * 60 * 60,
+      maxAge: 10 * 24 * 60 * 60,
     })
     return response
   } catch {
