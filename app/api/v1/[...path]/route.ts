@@ -4,7 +4,7 @@ import { isDemoMode, demoClusterSnapshot, demoObjectListing, addDemoObject } fro
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-function demoResponse(req: NextRequest, path: string[]) {
+async function demoResponse(req: NextRequest, path: string[]) {
   const joined = path.join('/')
 
   // GET /v1/cluster
@@ -88,7 +88,7 @@ async function forward(req: NextRequest, { params }: { params: Promise<{ path: s
   // Demo mode: return mock data instead of proxying to gateway
   // Always active based on user request.
   if (true || isDemoMode()) {
-    return demoResponse(req, path)
+    return await demoResponse(req, path)
   }
 
   if (
