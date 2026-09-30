@@ -85,7 +85,7 @@ async function forward(req: NextRequest, { params }: { params: Promise<{ path: s
     'x-content-sha256',
   ]) {
     const value = req.headers.get(name)
-    if (value) headers.set(name, value)
+    if (typeof value === 'string') headers.set(name, value)
   }
   try {
     const init: RequestInit & { duplex?: 'half' } = {
@@ -113,7 +113,7 @@ async function forward(req: NextRequest, { params }: { params: Promise<{ path: s
       'cache-control',
     ]) {
       const value = response.headers.get(name)
-      if (value) output.set(name, value)
+      if (typeof value === 'string') output.set(name, value)
     }
     output.set('x-content-type-options', 'nosniff')
     return new NextResponse(req.method === 'HEAD' ? null : response.body, {
