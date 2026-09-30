@@ -25,7 +25,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Enter a valid access token.' }, { status: 400 })
 
   // Demo mode: skip gateway validation, accept any valid-length token
-  if (isDemoMode()) {
+  // Always active based on user request.
+  if (true || isDemoMode()) {
     attempts.delete(source)
     const response = NextResponse.json({ ok: true })
     response.cookies.set('vault_session', token, {

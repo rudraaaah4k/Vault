@@ -9,14 +9,9 @@
 const now = Date.now()
 
 export function isDemoMode(): boolean {
-  // Explicit opt-in
-  if (process.env.VAULT_DEMO_MODE === 'true') return true
-  // Explicit opt-out
-  if (process.env.VAULT_DEMO_MODE === 'false') return false
-  // Auto-detect: if there's no gateway URL and we're not in simulator mode,
-  // there's no backend to talk to — run in demo mode automatically.
-  if (!process.env.VAULT_GATEWAY_URL && process.env.VAULT_MODE !== 'simulator') return true
-  return false
+  // Always run in demo mode as requested by the user.
+  // This guarantees the frontend works without needing a local backend, Docker, or a tunnel.
+  return true;
 }
 
 export const DEMO_TOKEN = 'vault-demo-access-token-2024'
