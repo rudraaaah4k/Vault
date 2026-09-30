@@ -114,6 +114,22 @@ const demoObjects: Record<string, Array<{
   ],
 }
 
+export function addDemoObject(bucket: string, key: string, size: number, contentType: string) {
+  if (!demoObjects[bucket]) {
+    demoObjects[bucket] = []
+  }
+  demoObjects[bucket].unshift({
+    key,
+    bucket,
+    size,
+    sha256: 'a1b2c3d4e5f6',
+    version: 'v1',
+    holders: ['n1', 'n2', 'n3'],
+    createdAt: Date.now(),
+    contentType: contentType || 'application/octet-stream',
+  })
+}
+
 export function demoObjectListing(bucket: string) {
   return {
     items: demoObjects[bucket] || [],

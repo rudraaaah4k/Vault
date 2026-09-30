@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isDemoMode, demoClusterSnapshot, demoObjectListing } from '@/lib/vault/demo-data'
+import { isDemoMode, demoClusterSnapshot, demoObjectListing, addDemoObject } from '@/lib/vault/demo-data'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -39,6 +39,31 @@ function demoResponse(req: NextRequest, path: string[]) {
 
   // PUT /v1/objects/:bucket/:key (upload — in demo we just accept it)
   if (path[0] === 'objects' && path.length >= 3 && req.method === 'PUT') {
+    const bucket = path[1]
+    const key = decodeURIComponent(path.slice(2).join('/'))
+    const size = Number(req.headers.get('content-length') || 1024)
+    const contentType = req.headers.get('content-type') || 'application/octet-stream'
+    addDemoObject(bucket, key, size, contentType)
+    return NextResponse.json({ ok: true, version: 'demo-v1' }, { status: 200 })
+  }
+
+  // POST /v1/uploads (multipart upload start)
+  if (path[0] === 'uploads' && path.length === 1 && req.method === 'POST') {
+    try {
+      const body = await req.clone().json()
+      addDemoObject(body.bucket || 'default', body.key || 'upload', 10485760, body.contentType)
+    } catch {}
+    return NextResponse.json({ uploadId: 'demo-upload-id' }, { status: 200 })
+  }
+
+  // PUT /v1/uploads/:id (multipart upload chunk)
+  if (path[0] === 'uploads' && path.length === 2 && req.method === 'PUT') {
+    return NextResponse.json({ ok: true }, { status: 200 })
+  }
+
+  // POST /v1/uploads/:id (multipart upload finish)
+  if (path[0] === 'uploads' && path.length === 2 && req.method === 'POST') {
+    // We don't have bucket/key here without body parsing, so we just return success
     return NextResponse.json({ ok: true, version: 'demo-v1' }, { status: 200 })
   }
 
