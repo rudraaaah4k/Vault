@@ -15,8 +15,8 @@ etcd --name=meta1 \
 sleep 3
 
 echo "Starting storage nodes..."
-export NODE_TOKEN="monolith-token"
-export ADMIN_TOKEN="monolith-admin"
+export NODE_TOKEN="monolith-node-token-2024"
+export ADMIN_TOKEN="monolith-admin-token-2024"
 export HOST=0.0.0.0
 
 DATA_DIR=/data/n1 PORT=7401 NODE_ID=n1 node services/storage.mjs &
