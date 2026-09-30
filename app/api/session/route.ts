@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Enter a valid access token.' }, { status: 400 })
   try {
     const result = await fetch(`${gateway()}/v1/cluster`, {
-      headers: { authorization: `Bearer ${token}`, 'Bypass-Tunnel-Reminder': 'true' },
+      headers: { authorization: `Bearer ${token}`, 'Bypass-Tunnel-Reminder': 'true', 'X-Pinggy-No-Screen': 'true' },
       cache: 'no-store',
       signal: AbortSignal.timeout(10000),
     })
