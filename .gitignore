@@ -21,3 +21,4 @@ node_modules
 .npm-cache/
 node_modules/
 test-results/
+.vercel

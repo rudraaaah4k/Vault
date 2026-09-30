@@ -1,12 +1,22 @@
 /**
  * Demo data for running the Vault dashboard without a live backend cluster.
- * Activated when VAULT_DEMO_MODE=true is set in environment variables.
+ * Activated automatically when:
+ *   - VAULT_DEMO_MODE=true is set in environment variables, OR
+ *   - No VAULT_GATEWAY_URL is configured and VAULT_MODE is not 'simulator'
+ *     (i.e. there is no backend cluster to connect to)
  */
 
 const now = Date.now()
 
 export function isDemoMode(): boolean {
-  return process.env.VAULT_DEMO_MODE === 'true'
+  // Explicit opt-in
+  if (process.env.VAULT_DEMO_MODE === 'true') return true
+  // Explicit opt-out
+  if (process.env.VAULT_DEMO_MODE === 'false') return false
+  // Auto-detect: if there's no gateway URL and we're not in simulator mode,
+  // there's no backend to talk to — run in demo mode automatically.
+  if (!process.env.VAULT_GATEWAY_URL && process.env.VAULT_MODE !== 'simulator') return true
+  return false
 }
 
 export const DEMO_TOKEN = 'vault-demo-access-token-2024'
