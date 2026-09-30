@@ -8,7 +8,7 @@ COPY --from=etcd /usr/local/bin/etcdctl /usr/local/bin/etcdctl
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --no-audit --no-fund --production
+RUN npm install --no-audit --no-fund --omit=dev
 
 COPY --chown=node:node services ./services
 COPY --chown=node:node start.sh ./
